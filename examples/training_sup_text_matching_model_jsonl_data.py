@@ -52,7 +52,7 @@ def main():
     parser.add_argument('--num_epochs', default=10, type=int, help='Number of training epochs')
     parser.add_argument('--batch_size', default=64, type=int, help='Batch size')
     parser.add_argument('--learning_rate', default=2e-5, type=float, help='Learning rate')
-    parser.add_argument('--save_model_every_epoch', action="store_true", help="Whether to save model after each epoch")
+    parser.add_argument('--save_model_every_epoch', default=False, action="store_true", help="Whether to save model after each epoch")
     parser.add_argument('--encoder_type', default='MEAN', type=lambda t: EncoderType[t],
                         choices=list(EncoderType), help='Encoder type, string name of EncoderType')
     parser.add_argument("--bf16", action="store_true", help="Whether to use bfloat16 amp training.")
