@@ -7,6 +7,8 @@
 import os
 
 import math
+
+import numpy as np
 import pandas as pd
 import torch
 from loguru import logger
@@ -280,14 +282,14 @@ class BertMatchModel:
                 attention_mask = inputs.get('attention_mask').squeeze(1).to(device)
                 token_type_ids = inputs.get('token_type_ids', None)
                 if token_type_ids is not None:
-                    token_type_ids = token_type_ids.squeeze(1).to(self.device)
+                    token_type_ids = token_type_ids.squeeze(1).to(device)
 
                 if bf16:
                     with torch.autocast('cuda', dtype=torch.bfloat16):
                         loss, logits, probs = self.model(input_ids, attention_mask, token_type_ids, labels)
                 else:
                     loss, logits, probs = self.model(input_ids, attention_mask, token_type_ids, labels)
-                    
+
                 current_loss = loss.item()
 
                 if verbose:
@@ -317,8 +319,13 @@ class BertMatchModel:
             report.to_csv(os.path.join(output_dir, "training_progress_scores.csv"), index=False)
 
             eval_spearman = results["eval_spearman"]
-            if eval_spearman > best_eval_metric:
-                best_eval_metric = eval_spearman
+            print(f"eval_spearman: {eval_spearman}, best_eval_metric: {best_eval_metric}")
+
+            # eval_spearman_metric should be average of all eval_spearman[i,i]
+            eval_spearman_value = np.mean([eval_spearman[i][i] for i in range(eval_spearman.shape[0])])
+
+            if eval_spearman_value > best_eval_metric:
+                best_eval_metric = eval_spearman_value
                 logger.info(f"Save new best model, best_eval_metric: {best_eval_metric}")
                 self.save_model(output_dir, model=self.model.bert, results=results)
 
@@ -368,7 +375,8 @@ class BertMatchModel:
             batch_preds.extend(probs.cpu().numpy())
 
         spearman = compute_spearmanr(batch_labels, batch_preds)
-        pearson = compute_pearsonr(batch_labels, batch_preds)
+        batch_preds_pos = [x[1] for x in batch_preds]
+        pearson = compute_pearsonr(batch_labels, batch_preds_pos)
         logger.debug(f"labels: {batch_labels[:10]}")
         logger.debug(f"preds:  {batch_preds[:10]}")
         logger.debug(f"pearson: {pearson}, spearman: {spearman}")
@@ -423,3 +431,4 @@ class BertMatchModel:
             with open(output_eval_file, "w") as writer:
                 for key in sorted(results.keys()):
                     writer.write("{} = {}\n".format(key, str(results[key])))
+

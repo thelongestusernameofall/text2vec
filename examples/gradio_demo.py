@@ -7,8 +7,10 @@
 import gradio as gr
 from text2vec import Similarity, EncoderType
 
+model="../text2vec-large-chinese-0803"
+
 # 中文句向量模型(CoSENT)
-sim_model = Similarity(model_name_or_path='shibing624/text2vec-base-chinese',
+sim_model = Similarity(model_name_or_path=model,
                        encoder_type=EncoderType.FIRST_LAST_AVG)
 
 
@@ -38,4 +40,4 @@ if __name__ == '__main__':
                  description="Copy or input Chinese text here. Submit and the machine will calculate the cosine score.",
                  article="Link to <a href='https://github.com/shibing624/text2vec' style='color:blue;' target='_blank\'>Github REPO</a>",
                  examples=examples
-                 ).launch()
+                ).launch(server_name="0.0.0.0", server_port=8888)
