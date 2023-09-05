@@ -13,7 +13,8 @@ from loguru import logger
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm, trange
-from transformers.optimization import AdamW, get_linear_schedule_with_warmup
+from transformers.optimization import get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup  # , AdamW,
+from torch.optim.adamw import AdamW
 
 from text2vec.sentence_model import SentenceModel
 from text2vec.text_matching_dataset import (
@@ -207,7 +208,9 @@ class SentenceBertModel(SentenceModel):
 
         warmup_steps = math.ceil(total_steps * warmup_ratio)  # by default 10% of _train data for warm-up
         optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=eps, correct_bias=False)
-        scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps,
+        # scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps,
+        #                                             num_training_steps=total_steps)
+        scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps,
                                                     num_training_steps=total_steps)
         logger.info("***** Running training *****")
         logger.info(f"  Num examples = {len(train_dataset)}")
