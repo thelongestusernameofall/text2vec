@@ -301,7 +301,7 @@ class SentenceBertModel(SentenceModel):
                 if verbose:
                     current_lr = scheduler.get_last_lr()[0]  # 获取当前的学习率
                     batch_iterator.set_description(
-                        f"Epoch: {epoch_number + 1}/{num_epochs}, Batch:{step}/{len(train_dataloader)}, Loss: {current_loss:.4ef}, LR: {current_lr:.4ef}")
+                        f"Epoch: {epoch_number + 1}/{num_epochs}, Batch:{step}/{len(train_dataloader)}, Loss: {current_loss:.4e}, LR: {current_lr:.4e}")
 
                 if gradient_accumulation_steps > 1:
                     loss = loss / gradient_accumulation_steps
