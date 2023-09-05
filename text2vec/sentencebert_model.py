@@ -207,7 +207,8 @@ class SentenceBertModel(SentenceModel):
         ]
 
         warmup_steps = math.ceil(total_steps * warmup_ratio)  # by default 10% of _train data for warm-up
-        optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=eps, correct_bias=False)
+        # optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=eps, correct_bias=False)
+        optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=eps, weight_decay=0.01)
         # scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps,
         #                                             num_training_steps=total_steps)
         scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps,
